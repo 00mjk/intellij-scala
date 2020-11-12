@@ -24,7 +24,9 @@ class AssignmentTransformerTest extends TransformerTestBase {
         |Test.test = 99
       """.stripMargin,
       """
-        |write [Test] test <- 99
+        |%0 <- DfInt(99)
+        |%1 <- call Test
+        |%2 <- call %1.test_=(%0)
         |end
       """.stripMargin
     )

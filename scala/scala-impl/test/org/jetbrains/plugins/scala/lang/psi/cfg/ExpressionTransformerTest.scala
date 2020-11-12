@@ -272,8 +272,6 @@ class ExpressionTransformerTest extends TransformerTestBase {
       |""".stripMargin
   )
 
-  /*
-  todo: implement this
   def test_property_access(): Unit = {
     check(
       """
@@ -283,9 +281,10 @@ class ExpressionTransformerTest extends TransformerTestBase {
         |val a = Test.test
       """.stripMargin,
       """
-        |a <- read [Test] test
+        |%0 <- call Test
+        |%1 <- call %0.test
         |end
       """.stripMargin
     )
-  }*/
+  }
 }

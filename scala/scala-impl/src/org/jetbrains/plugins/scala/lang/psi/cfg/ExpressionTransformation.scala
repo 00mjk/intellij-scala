@@ -114,7 +114,14 @@ private trait ExpressionTransformation { this: Transformer =>
           .transform()
 
       case Some(result) =>
-        builder.readVariable(variable(result.element))
+        val prop = result.element
+        reference.qualifier match {
+          case qualifier@Some(_) =>
+            InvocationInfo(qualifier, Some(prop), Seq.empty)
+              .transform()
+          case None =>
+            builder.readVariable(variable(prop))
+        }
 
       case None =>
         // we have to be able to handle the error here
@@ -156,13 +163,34 @@ private trait ExpressionTransformation { this: Transformer =>
         assignment.mirrorMethodCall.fold(buildAny())(transformMethodCall)
       case None =>
         val ScAssignment(left, right) = assignment
+        val value = transformExpressionOrDefault(right, DfAny.Top)
+        val maybeQualifier = left.asOptionOf[ScReferenceExpression]
+          .flatMap(_.qualifier)
+
+        def transformRenamedInvocation(info: InvocationInfo): builder.Value = {
+          val callInfo = info.callInfo
+          info.transform(
+            args = Seq(Seq(value)),
+            callInfo = callInfo.copy(name = callInfo.name + "_=")
+          )
+        }
 
         left match {
-          case ref@ScReference.qualifier(qual) => transformationNotSupported(ref)
           case ScReference(named: ScNamedElement) =>
-            val value = transformExpressionOrDefault(right, DfAny.Top)
-            builder.writeVariable(variable(named), value)
-            value
+            maybeQualifier match {
+              case qualifier@Some(_) =>
+                transformRenamedInvocation(InvocationInfo(qualifier, Some(named), Seq.empty))
+              case _ =>
+                builder.writeVariable(variable(named), value)
+                value
+            }
+          case _ =>
+            maybeQualifier match {
+              case qualifier@Some(_) =>
+                transformRenamedInvocation(InvocationInfo(qualifier, None, Seq.empty))
+              case None =>
+                transformationNotSupported(assignment)
+            }
         }
     }
   }
