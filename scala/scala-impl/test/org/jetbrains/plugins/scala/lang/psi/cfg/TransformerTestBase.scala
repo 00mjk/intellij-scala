@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.cfg
 
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.dfa.analysis.DataFlowAnalysis
 
 abstract class TransformerTestBase extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
   def check(code: String, result: String): Unit = {
@@ -9,5 +10,9 @@ abstract class TransformerTestBase extends ScalaLightCodeInsightFixtureTestAdapt
     val graph = PsiToCfgTransformation.transformUnsafe(actualFile)
 
     graph.asmText().trim shouldBe result.trim
+
+    // just run the analysis and see if it doesn't throw any exceptions
+    val dfa = new DataFlowAnalysis(graph)
+    dfa.run()
   }
 }
