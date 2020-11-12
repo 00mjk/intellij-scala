@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.dfa
 package analysis
 
-import org.jetbrains.plugins.scala.dfa.analysis.DataFlowAnalysis.WQItem
+import org.jetbrains.plugins.scala.dfa.analysis.DataFlowAnalysis.{SpecialMethodProcessorFactories, WQItem}
 import org.jetbrains.plugins.scala.dfa.analysis.impl.createNodeInstance
+import org.jetbrains.plugins.scala.dfa.cfg.CallInfo
 
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
-final class DataFlowAnalysis[Info](val graph: cfg.Graph[Info]) {
+final class DataFlowAnalysis[Info](val graph: cfg.Graph[Info],
+                                   specialMethodProcessorFactories: SpecialMethodProcessorFactories) {
   private val items: ArraySeq[WQItem] =
     graph.nodes.iterator
       .zipWithIndex
@@ -45,6 +47,8 @@ final class DataFlowAnalysis[Info](val graph: cfg.Graph[Info]) {
       override def arguments: Seq[DfAny] = args
       override def enqueue(index: Int, state: State): Unit = addToQueue(index, state)
       override def addEndState(state: State): Unit = endStates ::= state
+      override def specialMethodProcessor(callInfo: CallInfo, call: cfg.Call): Option[SpecialMethodProcessor] =
+        specialMethodProcessorFactories.get(callInfo).map(_.apply(call))
     }
 
     addToQueue(0, State.from(graph))
@@ -85,6 +89,8 @@ final class DataFlowAnalysis[Info](val graph: cfg.Graph[Info]) {
 }
 
 object DataFlowAnalysis {
+  type SpecialMethodProcessorFactories = Map[CallInfo, cfg.Call => SpecialMethodProcessor]
+
   private class WQItem(val index: Int, val node: cfg.Node) {
     val shouldDispose: Boolean = true // node.block.incoming.sizeIs <= 1
     val instance: NodeInstance = createNodeInstance(node)

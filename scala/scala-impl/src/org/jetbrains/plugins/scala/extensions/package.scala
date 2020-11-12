@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{Callable, ScheduledFuture, TimeUnit, ConcurrentMap => JConcurrentMap, Future => JFuture}
 import java.util.regex.Pattern
 import java.util.{Arrays, Set => JSet}
-
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.ide.plugins.DynamicPluginListener
@@ -40,6 +39,7 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker,
 import org.jetbrains.plugins.scala.dfa.DfAny
 import org.jetbrains.plugins.scala.dfa.analysis.{DataFlowAnalysis, DfaResult}
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
+import org.jetbrains.plugins.scala.lang.dfa.ScalaDfa
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -845,7 +845,7 @@ package object extensions {
       for {
         graph <- this.controlFlowGraph
       } yield {
-        val dfa = new DataFlowAnalysis(graph)
+        val dfa = ScalaDfa(graph)
         dfa.run()
         dfa.result
       }

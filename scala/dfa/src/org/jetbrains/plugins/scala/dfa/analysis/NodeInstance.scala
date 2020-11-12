@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.dfa
 package analysis
 
 import org.jetbrains.plugins.scala.dfa.analysis.NodeInstance.Controller
+import org.jetbrains.plugins.scala.dfa.cfg.CallInfo
 
 abstract class NodeInstance extends Cloneable {
   def node: cfg.Node
@@ -19,5 +20,7 @@ object NodeInstance {
     def arguments: Seq[DfAny]
     def enqueue(index: Int, state: State): Unit
     def addEndState(state: State): Unit
+
+    def specialMethodProcessor(callInfo: CallInfo, call: cfg.Call): Option[SpecialMethodProcessor]
   }
 }

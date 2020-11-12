@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
+package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.{PsiElement, PsiNamedElement}
+import org.jetbrains.plugins.scala.dfa
 import org.jetbrains.plugins.scala.extensions._
 
 package object cfg {

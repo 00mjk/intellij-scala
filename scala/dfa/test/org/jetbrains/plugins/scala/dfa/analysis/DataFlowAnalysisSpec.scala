@@ -29,7 +29,7 @@ class DataFlowAnalysisSpec extends AnyFunSuite with Matchers {
   }
 
   test("run without initializing") {
-    val dfa = new DataFlowAnalysis(graph)
+    val dfa = TestDfa(graph)
     dfa.run()
 
     dfa.hasFinished shouldBe true
@@ -42,7 +42,7 @@ class DataFlowAnalysisSpec extends AnyFunSuite with Matchers {
   }
 
   test("run with args") {
-    val dfa = new DataFlowAnalysis(graph)
+    val dfa = TestDfa(graph)
     dfa.init(Seq(DfInt(1)))
     dfa.run()
 
@@ -50,14 +50,14 @@ class DataFlowAnalysisSpec extends AnyFunSuite with Matchers {
   }
 
   test("wrong numbers of args") {
-    val dfa = new DataFlowAnalysis(graph)
+    val dfa = TestDfa(graph)
 
     an [AssertionError] should be thrownBy
       dfa.init(Seq(DfBool.True, DfBool.False))
   }
 
   test("dfa results") {
-    val dfa = new DataFlowAnalysis(graph)
+    val dfa = TestDfa(graph)
     dfa.run()
 
     val result = dfa.result
