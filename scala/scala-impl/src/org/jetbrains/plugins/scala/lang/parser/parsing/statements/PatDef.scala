@@ -7,7 +7,7 @@ package statements
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Ascription, ExprInIndentationRegion}
-import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2InForDef
 
 /*
  * Scala 2.12
@@ -23,12 +23,12 @@ object PatDef extends ParsingRule {
     val patDefMarker = builder.mark
 
     def parsePatterns(): Boolean = {
-      if (!Pattern2.parse(builder, forDef = true)) {
+      if (!Pattern2InForDef()) {
         return false
       }
       while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
         builder.checkedAdvanceLexer()
-        if (!Pattern2.parse(builder, forDef = true)) {
+        if (!Pattern2InForDef()) {
           return false
         }
       }
